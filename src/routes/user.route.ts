@@ -50,7 +50,7 @@ router.get("/verifyEmail/:token", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/verifyOtp", async (req: Request, res: Response) => {
+router.post("/verifyOTP", async (req: Request, res: Response) => {
   const { otp } = req.body;
   try {
     const isVerified = verifyOtp(otp);
@@ -58,6 +58,23 @@ router.post("/verifyOtp", async (req: Request, res: Response) => {
       res.status(200).json({ message: "OTP vérifié" });
     } else {
       res.status(401).json({ message: "OTP invalide" });
+    }
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+router.post("/sendResetPasswordLink", async (req: Request, res: Response) => {
+  const { email, newPassword } = req.body;
+  try {
+    const user = await User.findOne({ email: email });
+    const hashedPassword = await hash(newPassword, 10);
+    if (user) {
+      user.password = hashedPassword;
+      await user?.save();
+      res.status(200).json({ message: "Mot de passe réinitialisé" });
+    } else {
+      res.status(404).json({ message: "Utilisateur non trouvé" });
     }
   } catch (error) {
     res.status(500).json({ error });
