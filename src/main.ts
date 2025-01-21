@@ -16,8 +16,8 @@ Mongo();
 app.use(express.json());
 app.use(bodyParser.json());
 app.use("/users", UserRoute);
-app.use("/auth",AuthRoute);
-app.use("/email",EmailRoute);
+app.use("/auth", AuthRoute);
+app.use("/email", EmailRoute);
 
 app.listen(port, () => {
   console.log(`Connected to mongodb://${port}`);

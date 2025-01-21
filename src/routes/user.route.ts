@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import User from "../schema/user";
 import { hash } from "bcrypt";
 import { generateToken, verifyToken } from "../config/jwt";
+import { verifyOtp } from "../config/Otp";
 
 const router = Router();
 
@@ -46,6 +47,20 @@ router.get("/verifyEmail/:token", async (req: Request, res: Response) => {
     } // Mettre à jour le statut de vérification
   } catch (error) {
     res.status(400).json({ message: "Token invalide ou expiré" });
+  }
+});
+
+router.post("/verifyOtp", async (req: Request, res: Response) => {
+  const { otp } = req.body;
+  try {
+    const isVerified = verifyOtp(otp);
+    if (isVerified) {
+      res.status(200).json({ message: "OTP vérifié" });
+    } else {
+      res.status(401).json({ message: "OTP invalide" });
+    }
+  } catch (error) {
+    res.status(500).json({ error });
   }
 });
 
