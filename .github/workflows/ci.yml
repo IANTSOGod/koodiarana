@@ -61,6 +61,6 @@ jobs:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          docker pull tsantaniainaraherison391/viktoo-app:production
+          docker pull iantsogod/koodiarana:production
           docker compose -f docker-compose.prod.yml up -d
           docker system prune --all --volumes --force
