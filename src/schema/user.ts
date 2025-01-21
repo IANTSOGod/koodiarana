@@ -2,39 +2,48 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    nom:{
+    nom: {
       type: String,
       required: true,
     },
-    prenom:{
+    prenom: {
       type: String,
       required: true,
     },
-    dateNaissance:{
+    dateNaissance: {
       type: Date,
       required: true,
     },
-    email:{
+    email: {
       type: String,
       required: true,
       unique: true,
     },
-    num:{
+    num: {
       type: String,
       required: true,
     },
-    password:{
+    password: {
       type: String,
       required: true,
     },
-    emailVerified:{ 
+    emailVerified: {
       type: Boolean,
       default: false,
     },
-    status:{
+    status: {
       type: Boolean,
       required: true,
-    }
+    },
+    photoProfil: {
+      type: String,
+    },
+    photoCIN1: {
+      type: String,
+    },
+    photoCIN2: {
+      type: String,
+    },
   },
   {
     collection: "User",

@@ -5,6 +5,7 @@ import AuthRoute from "./routes/auth.route";
 import EmailRoute from "./routes/email.route";
 import Mongo from "./config/mongoose";
 import bodyParser from "body-parser";
+import path from "path";
 
 configDotenv({ path: ".env" });
 
@@ -15,6 +16,8 @@ Mongo();
 
 app.use(express.json());
 app.use(bodyParser.json());
+const assetsPath = path.join(__dirname, 'assets');
+app.use('/assets', express.static(assetsPath));
 app.use("/users", UserRoute);
 app.use("/auth", AuthRoute);
 app.use("/email", EmailRoute);

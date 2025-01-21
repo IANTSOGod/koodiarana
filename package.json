@@ -21,7 +21,7 @@
     "prisma": "^6.2.1"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r src/assets dist/assets",
     "start": "node dist/main.js"
   }
 }
