@@ -1,5 +1,5 @@
 services:
-  # mongo
+  # MongoDB
   db:
     image: mongo
     environment:
@@ -7,9 +7,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: koodiarana
     restart: always
     ports:
-      - "8081:8081"
+      - "27017:27017" # Expose MongoDB sur le port par défaut
 
-  # Nodejs
+  # Node.js
   api:
     build:
       context: .
@@ -21,7 +21,7 @@ services:
       - db
     environment:
       PORT: 9999
-      DATABASE: mongodb://db:8081/koodiarana
+      DATABASE: mongodb://db:27017/koodiarana # Port interne correct
       JWT_SECRET: $2b$10$Sjzdakezna2Qy3y/WciWM4GkEq.RktXLhztghzGJynA649M14njAS
       OTP_SECRET: koodiaranabyiantsosynykazazanyAZERTY
       SOCIETY_EMAIL: iantsochristianrazafindrazaka@gmail.com
