@@ -29,8 +29,8 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
-  router.post('/test', (req:Request, res:Response) => {
-  res.send({ message: 'Test GET route works!' });
+  router.get('/test', (req:Request, res:Response) => {
+  res.send({ message: 'Bonjour D' });
 });
 
 export default router;
