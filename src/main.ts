@@ -1,8 +1,8 @@
 import { configDotenv } from "dotenv";
 import express from "express";
-import UserRoute from "../src/routes/user.route";
-import AuthRoute from "../src/routes/auth.route";
-import EmailRoute from "../src/routes/email.route";
+import UserRoute from "./routes/user.route";
+import AuthRoute from "./routes/auth.route";
+import EmailRoute from "./routes/email.route";
 import Mongo from "./config/mongoose";
 import bodyParser from "body-parser";
 
