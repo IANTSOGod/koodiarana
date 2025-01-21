@@ -30,7 +30,7 @@ router.post("/login", async (req: Request, res: Response) => {
 });
 
   router.post("/test",(req:Request,res:Response)=>{
-    res.send("Hello test")
+    res.send("Hello test  ")
   })
 
 export default router;

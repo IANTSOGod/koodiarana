@@ -21,7 +21,7 @@ services:
       - db
     environment:
       PORT: 9999
-      DATABASE: mongodb://localhost:27017/koodiarana
+      DATABASE: mongodb://localhost:8081/koodiarana
       JWT_SECRET: $2b$10$Sjzdakezna2Qy3y/WciWM4GkEq.RktXLhztghzGJynA649M14njAS
       OTP_SECRET: koodiaranabyiantsosynykazazanyAZERTY
       SOCIETY_EMAIL: iantsochristianrazafindrazaka@gmail.com
