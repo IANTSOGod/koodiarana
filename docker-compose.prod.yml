@@ -3,8 +3,8 @@ services:
   db:
     image: mongo
     environment:
-      MONGO_INITDB_ROOT_USERNAME: koodiarana
-      MONGO_INITDB_ROOT_PASSWORD: koodiarana
+      MONGO_INITDB_ROOT_USERNAME: dev
+      MONGO_INITDB_ROOT_PASSWORD: dev
     restart: always
     ports:
       - "27017:27017" # Expose MongoDB sur le port par défaut
