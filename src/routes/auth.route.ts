@@ -6,10 +6,13 @@ const router = Router();
 
 router.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
+  console.log(email, password)
+
   try {
     const user = await User.findOne({
       email: email,
     });
+    console.log(user)
     if (user) {
       const isPasswordValid = await compare(password, user.password);
       if (isPasswordValid) {
@@ -29,8 +32,5 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
-  router.get('/test', (req:Request, res:Response) => {
-  res.send({ message: 'Bonjour D' });
-});
 
 export default router;
