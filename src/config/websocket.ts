@@ -95,7 +95,6 @@ export const initializeWebSocket = (server: http.Server) => {
         }
       });
 
-      // Si un client le plus proche est trouvé, on l'ajoute à la liste d'associations
       if (closestClient) {
         AssocALL.push({ chauffeur, client: closestClient });
       }
