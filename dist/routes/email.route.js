@@ -16,6 +16,7 @@ const dotenv_1 = require("dotenv");
 const Otp_1 = require("../config/Otp");
 (0, dotenv_1.configDotenv)({ path: ".env" });
 const router = (0, express_1.Router)();
+const domain = process.env.DOMAIN_NAME;
 router.post("/send", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { to, subject, text } = req.body;
     const societyEmail = process.env.SOCIETY_EMAIL;
@@ -42,7 +43,7 @@ router.post("/sendVerificationLink", (req, res) => __awaiter(void 0, void 0, voi
             from: societyEmail, // Adresse email de l'expéditeur
             to: payload.email, // Adresse email du destinataire
             subject: "Email verification", // Sujet de l'email
-            text: `Voici le lien de vérification de compte http://localhost:3000/users/verifyEmail/${token}`, // Texte brut
+            text: `Voici le lien de vérification de compte ${domain}/users/verifyEmail/${token}`, // Texte brut
         };
         const info = yield mailer_1.transporter.sendMail(mailOptions);
         res.status(200).json({ message: "Email envoyé" });

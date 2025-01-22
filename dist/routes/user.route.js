@@ -17,7 +17,91 @@ const user_1 = __importDefault(require("../schema/user"));
 const bcrypt_1 = require("bcrypt");
 const jwt_1 = require("../config/jwt");
 const Otp_1 = require("../config/Otp");
+const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
+const dotenv_1 = require("dotenv");
 const router = (0, express_1.Router)();
+(0, dotenv_1.configDotenv)({ path: ".env" });
+const storage = multer_1.default.diskStorage({
+    destination: (req, file, cb) => {
+        // Vérifie la route et définit le dossier approprié
+        if (req.path === "/uploadProfilePics") {
+            cb(null, path_1.default.join(__dirname, "../assets/profile"));
+        }
+        else if (req.path === "/uploadCIN1") {
+            cb(null, path_1.default.join(__dirname, "../assets/cinFront"));
+        }
+        else if (req.path === "/uploadCIN2") {
+            cb(null, path_1.default.join(__dirname, "../assets/cinBack"));
+        }
+        else {
+            cb(new Error("Route non valide pour l’upload"), "");
+        }
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, `${uniqueSuffix}-${file.originalname}`);
+    },
+});
+const upload = (0, multer_1.default)({ storage });
+const domain = process.env.DOMAIN_NAME;
+router.post("/uploadProfilePics", upload.single("file"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.file) {
+        res.status(404).json({ message: "Aucun fichier fournit" });
+    }
+    else {
+        const { email } = req.body;
+        try {
+            const user = yield user_1.default.findOne({ email: email });
+            if (user) {
+                user.photoProfil = `${domain}/assets/profile/` + req.file.filename;
+                yield user.save();
+                res.status(200).json({ message: "Photo de profil téléchargée" });
+            }
+        }
+        catch (error) {
+            res.status(500).json({ error });
+        }
+    }
+}));
+router.post("/uploadCIN1", upload.single("file"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.file) {
+        res.status(404).json({ message: "Aucun fichier fournit" });
+    }
+    else {
+        const { email } = req.body;
+        try {
+            const user = yield user_1.default.findOne({ email: email });
+            if (user) {
+                user.photoCIN1 = `${domain}/assets/cinFront/` + req.file.filename;
+                yield user.save();
+                res.status(200).json({ message: "Photo de CIN avant téléchargée" });
+            }
+        }
+        catch (error) {
+            res.status(500).json({ error });
+        }
+    }
+}));
+router.post("/uploadCIN2", upload.single("file"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.file) {
+        res.status(404).json({ message: "Aucun fichier fournit" });
+    }
+    else {
+        const { email } = req.body;
+        try {
+            const user = yield user_1.default.findOne({ email: email });
+            if (user) {
+                user.photoCIN2 = `${domain}/assets/cinBack/` + req.file.filename;
+                yield user.save();
+                res.status(200).json({ message: "Photo de CIN apres téléchargée" });
+            }
+        }
+        catch (error) {
+            res.status(500).json({ error });
+        }
+    }
+}));
 router.post("/create", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { nom, prenom, dateNaissance, email, num, password, status } = req.body;
     const hashedPassword = yield (0, bcrypt_1.hash)(password, 10);

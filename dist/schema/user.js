@@ -37,7 +37,16 @@ const userSchema = new mongoose_1.default.Schema({
     status: {
         type: Boolean,
         required: true,
-    }
+    },
+    photoProfil: {
+        type: String,
+    },
+    photoCIN1: {
+        type: String,
+    },
+    photoCIN2: {
+        type: String,
+    },
 }, {
     collection: "User",
 });
