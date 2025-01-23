@@ -156,7 +156,7 @@ router.post("/verifyOTP", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/sendResetPasswordLink", async (req: Request, res: Response) => {
+router.post("/changePassword", async (req: Request, res: Response) => {
   const { email, newPassword } = req.body;
   try {
     const user = await User.findOne({ email: email });

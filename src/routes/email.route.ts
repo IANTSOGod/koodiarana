@@ -3,6 +3,7 @@ import { transporter } from "../config/mailer";
 import { verifyToken } from "../config/jwt";
 import { configDotenv } from "dotenv";
 import { generateOtp } from "../config/Otp";
+import User from "../schema/user";
 
 configDotenv({ path: ".env" });
 
@@ -56,8 +57,13 @@ router.post("/sendOTP", async (req: Request, res: Response) => {
       subject: "OTP by koodiarana",
       text: "Votre code OTP est " + otp,
     };
-    const info = await transporter.sendMail(mailOptions);
-    res.status(200).json({ message: "Email envoyé" });
+    const user = await User.findOne({ email: email });
+    if (user) {
+      const info = await transporter.sendMail(mailOptions);
+      res.status(200).json({ message: "Email envoyé" });
+    } else {
+      res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
   } catch (error) {
     res.status(500).json(error);
   }

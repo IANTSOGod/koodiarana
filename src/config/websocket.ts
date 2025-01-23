@@ -154,6 +154,12 @@ export const initializeWebSocket = (server: http.Server) => {
                   associations: AssocALL,
                 })
               );
+              console.log(
+                JSON.stringify({
+                  clients: AllClient,
+                  associations: AssocALL,
+                })
+              );
             } else {
               ws.send("Erreur : Propriétés longitude et latitude manquantes.");
             }
