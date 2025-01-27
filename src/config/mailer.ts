@@ -7,14 +7,13 @@ const societyEmail=process.env.SOCIETY_EMAIL;
 const societyPassword=process.env.SOCIETY_PASSWORD;
 
 export const transporter = nodemailer.createTransport({
-  service: "gmail", // Ou un autre service : 'hotmail', 'yahoo', etc.
+  service: "gmail", 
   auth: {
-    user: societyEmail, // Remplacez par votre email
-    pass: societyPassword,   // Mot de passe ou App Password
+    user: societyEmail, 
+    pass: societyPassword,   
   },
 });
 
-// Vérifier la connexion au service de messagerie
 transporter.verify((error, success) => {
   if (error) {
     console.error("Erreur Nodemailer :", error);

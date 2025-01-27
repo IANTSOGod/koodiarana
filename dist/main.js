@@ -11,17 +11,21 @@ const email_route_1 = __importDefault(require("./routes/email.route"));
 const mongoose_1 = __importDefault(require("./config/mongoose"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const path_1 = __importDefault(require("path"));
+const http_1 = __importDefault(require("http"));
+const websocket_1 = require("./config/websocket");
 (0, dotenv_1.configDotenv)({ path: ".env" });
 const app = (0, express_1.default)();
 const port = process.env.PORT;
+const server = http_1.default.createServer(app);
+(0, websocket_1.initializeWebSocket)(server);
 (0, mongoose_1.default)();
 app.use(express_1.default.json());
 app.use(body_parser_1.default.json());
-const assetsPath = path_1.default.join(__dirname, 'assets');
-app.use('/assets', express_1.default.static(assetsPath));
+const assetsPath = path_1.default.join(__dirname, "assets");
+app.use("/assets", express_1.default.static(assetsPath));
 app.use("/users", user_route_1.default);
 app.use("/auth", auth_route_1.default);
 app.use("/email", email_route_1.default);
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Connected to mongodb://${port}`);
 });

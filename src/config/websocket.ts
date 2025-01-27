@@ -1,6 +1,8 @@
 import { Server as WebSocketServer, WebSocket } from "ws";
 import http from "http";
 import User from "../schema/user";
+import { randomUUID } from "crypto";
+import Reservation from "../schema/reservation";
 
 interface Message {
   longitude: number;
@@ -9,22 +11,19 @@ interface Message {
 }
 
 interface Chauffeur {
+  id: string;
   email: string;
   longitude: number;
   latitude: number;
 }
 
 interface Client {
-  email: string;
   longitude: number;
   latitude: number;
+  email: string;
 }
 
-interface Association {
-  chauffeur: Chauffeur;
-  client: Client;
-}
-
+// Fonction pour calculer la distance entre deux points géographiques
 const calculateDistance = (
   lat1: number,
   lon1: number,
@@ -47,9 +46,9 @@ const calculateDistance = (
 // Initialisation du WebSocket
 export const initializeWebSocket = (server: http.Server) => {
   const AllChauffeur: Chauffeur[] = [];
-  const AllClient: Client[] = [];
-  const AssocALL: Association[] = [];
+  const ClientList: Client[] = [];
 
+  // Met à jour la liste des chauffeurs
   const updateChauffeurList = (newChauffeur: Chauffeur) => {
     const index = AllChauffeur.findIndex(
       (chauffeur) => chauffeur.email === newChauffeur.email
@@ -62,50 +61,35 @@ export const initializeWebSocket = (server: http.Server) => {
     }
   };
 
-  const updateClientList = (newClient: Client) => {
-    const index = AllClient.findIndex(
-      (client) => client.email === newClient.email
-    );
+  // Récupère la liste des clients à partir des réservations
+  const getClientList = async () => {
+    const allReservation = await Reservation.find({});
+    ClientList.length = 0; // Réinitialise le tableau avant de le remplir
 
-    if (index !== -1) {
-      AllClient[index] = newClient;
-    } else {
-      AllClient.push(newClient);
+    for (const reservation of allReservation) {
+      if (reservation.user) {
+        const user = await User.findOne({ _id: reservation.user });
+        if (user) {
+          const newUser: Client = {
+            longitude: reservation.userLongitude,
+            latitude: reservation.userLatitude,
+            email: user.email,
+          };
+          ClientList.push(newUser);
+        }
+      }
     }
   };
 
-  const associateClientsToChauffeurs = () => {
-    AssocALL.length = 0;
-
-    AllChauffeur.forEach((chauffeur) => {
-      let closestClient: Client | null = null;
-      let minDistance = Infinity;
-
-      AllClient.forEach((client) => {
-        const distance = calculateDistance(
-          chauffeur.latitude,
-          chauffeur.longitude,
-          client.latitude,
-          client.longitude
-        );
-
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestClient = client;
-        }
-      });
-
-      if (closestClient) {
-        AssocALL.push({ chauffeur, client: closestClient });
-      }
-    });
-  };
-
+  // Création du serveur WebSocket
   const wss = new WebSocketServer({ server });
 
+  // Gestion des connexions WebSocket
   wss.on("connection", (ws: WebSocket) => {
-    console.log("Un client WebSocket est connecté.");
+    const clientID = randomUUID();
+    console.log("Un client WebSocket est connecté.", clientID);
 
+    // Gestion des messages reçus
     ws.on("message", async (data: string) => {
       try {
         const message: Message = JSON.parse(data);
@@ -113,69 +97,48 @@ export const initializeWebSocket = (server: http.Server) => {
         const user = await User.findOne({ email: message.email });
 
         if (user) {
-          if (user.status) {
+          if (user.status === true) {
             if (
               message.longitude !== undefined &&
               message.latitude !== undefined
             ) {
+              // Récupère la liste des clients et met à jour les chauffeurs
+              await getClientList();
               updateChauffeurList({
+                id: clientID,
                 email: message.email,
                 longitude: message.longitude,
                 latitude: message.latitude,
               });
 
-              associateClientsToChauffeurs();
-
+              // Envoie les listes mises à jour au client WebSocket
               ws.send(
                 JSON.stringify({
                   chauffeurs: AllChauffeur,
-                  associations: AssocALL,
+                  clients: ClientList,
                 })
               );
             } else {
               ws.send("Erreur : Propriétés longitude et latitude manquantes.");
             }
           } else {
-            if (
-              message.longitude !== undefined &&
-              message.latitude !== undefined
-            ) {
-              updateClientList({
-                latitude: message.latitude,
-                email: message.email,
-                longitude: message.longitude,
-              });
-
-              associateClientsToChauffeurs();
-
-              ws.send(
-                JSON.stringify({
-                  clients: AllClient,
-                  associations: AssocALL,
-                })
-              );
-              console.log(
-                JSON.stringify({
-                  clients: AllClient,
-                  associations: AssocALL,
-                })
-              );
-            } else {
-              ws.send("Erreur : Propriétés longitude et latitude manquantes.");
-            }
+            ws.send("Utilisateur désactivé ou inactif.");
           }
         } else {
-          ws.send("Utilisateur non trouvé");
+          ws.send("Utilisateur non trouvé.");
         }
       } catch (err) {
-        ws.send("Champ invalide");
+        console.error("Erreur lors de l'analyse du message :", err);
+        ws.send("Erreur : Champ invalide.");
       }
     });
 
+    // Gestion de la déconnexion
     ws.on("close", () => {
       console.log("Le client WebSocket s'est déconnecté.");
     });
 
+    // Envoi d'un message de bienvenue au client
     ws.send("Bienvenue sur le serveur WebSocket!");
   });
 

@@ -26,7 +26,7 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
             const isPasswordValid = yield (0, bcrypt_1.compare)(password, user.password);
             if (isPasswordValid) {
                 if (user.emailVerified) {
-                    res.status(200).json({ message: "Login success" });
+                    res.status(200).json(user);
                 }
                 else {
                     res.status(401).json({ message: "Email non vérifié" });

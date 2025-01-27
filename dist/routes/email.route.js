@@ -8,12 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const mailer_1 = require("../config/mailer");
 const jwt_1 = require("../config/jwt");
 const dotenv_1 = require("dotenv");
 const Otp_1 = require("../config/Otp");
+const user_1 = __importDefault(require("../schema/user"));
 (0, dotenv_1.configDotenv)({ path: ".env" });
 const router = (0, express_1.Router)();
 const domain = process.env.DOMAIN_NAME;
@@ -63,8 +67,14 @@ router.post("/sendOTP", (req, res) => __awaiter(void 0, void 0, void 0, function
             subject: "OTP by koodiarana",
             text: "Votre code OTP est " + otp,
         };
-        const info = yield mailer_1.transporter.sendMail(mailOptions);
-        res.status(200).json({ message: "Email envoyé" });
+        const user = yield user_1.default.findOne({ email: email });
+        if (user) {
+            const info = yield mailer_1.transporter.sendMail(mailOptions);
+            res.status(200).json({ message: "Email envoyé" });
+        }
+        else {
+            res.status(404).json({ message: "Utilisateur non trouvé" });
+        }
     }
     catch (error) {
         res.status(500).json(error);

@@ -163,7 +163,7 @@ router.post("/verifyOTP", (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.status(500).json({ error });
     }
 }));
-router.post("/sendResetPasswordLink", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/changePassword", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, newPassword } = req.body;
     try {
         const user = yield user_1.default.findOne({ email: email });
