@@ -127,18 +127,25 @@ router.post("/create", async (req: Request, res: Response) => {
   const { nom, prenom, dateNaissance, email, num, password, status } = req.body;
   const hashedPassword = await hash(password, 10);
   try {
-    const newUser = new User({
-      nom: nom,
-      prenom: prenom,
-      dateNaissance: dateNaissance,
-      email: email,
-      num: num,
-      password: hashedPassword,
-      status: status,
-    });
-    const newUserDoc = await newUser.save();
-    const token = generateToken(newUserDoc.email);
-    res.status(201).json({ token: token });
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser) {
+      res
+        .status(401)
+        .json({ message: "Utilisateur avec meme mail existe déja" });
+    } else {
+      const newUser = new User({
+        nom: nom,
+        prenom: prenom,
+        dateNaissance: dateNaissance,
+        email: email,
+        num: num,
+        password: hashedPassword,
+        status: status,
+      });
+      const newUserDoc = await newUser.save();
+      const token = generateToken(newUserDoc.email);
+      res.status(201).json({ token: token });
+    }
   } catch (error) {
     res.status(500).json({ error });
   }
