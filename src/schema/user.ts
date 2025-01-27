@@ -44,6 +44,9 @@ const userSchema = new mongoose.Schema(
     photoCIN2: {
       type: String,
     },
+    photoMoto:{
+      type: String,
+    }
   },
   {
     collection: "User",

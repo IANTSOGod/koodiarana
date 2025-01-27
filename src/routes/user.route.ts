@@ -19,6 +19,8 @@ const storage = multer.diskStorage({
       cb(null, path.join(__dirname, "../assets/cinFront"));
     } else if (req.path === "/uploadCIN2") {
       cb(null, path.join(__dirname, "../assets/cinBack"));
+    } else if (req.path === "/uploadMoto") {
+      cb(null, path.join(__dirname, "../assets/moto"));
     } else {
       cb(new Error("Route non valide pour l’upload"), "");
     }
@@ -98,6 +100,29 @@ router.post(
     }
   }
 );
+
+router.post(
+  "/uploadMoto",
+  upload.single("file"),
+  async (req: Request, res: Response) => {
+    if (!req.file) {
+      res.status(404).json({ message: "Aucun fichier fournit" });
+    } else {
+      const { email } = req.body;
+      try {
+        const user = await User.findOne({ email: email, status: true });
+        if (user) {
+          user.photoMoto = `${domain}/assets/moto/` + req.file.filename;
+          await user.save();
+          res.status(200).json({ message: "Photo de moto apres téléchargée" });
+        }
+      } catch (error) {
+        res.status(500).json({ error });
+      }
+    }
+  }
+);
+
 router.post("/create", async (req: Request, res: Response) => {
   const { nom, prenom, dateNaissance, email, num, password, status } = req.body;
   const hashedPassword = await hash(password, 10);
