@@ -26,6 +26,10 @@ const reservationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Chauffeur"
     },
+    localisation:{
+        type: String,
+        required: true,
+    },
     userLongitude: {
       type: Number,
       required: true,

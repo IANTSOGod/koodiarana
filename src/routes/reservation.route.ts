@@ -6,7 +6,7 @@ const router = Router();
 
 router.post("/create", async (req: Request, res: Response) => {
   const {
-    chauffeurId,
+    localisation,
     clientId,
     clientLatitude,
     clientLongitude,
@@ -15,10 +15,9 @@ router.post("/create", async (req: Request, res: Response) => {
   } = req.body;
   try {
     const client = await User.findOne({ _id: clientId, status: false });
-    const chauffeur = await User.findOne({ _id: chauffeurId, status: true });
     if (
       client &&
-      chauffeur &&
+      localisation &&
       clientLatitude &&
       clientLongitude &&
       destination &&
@@ -26,17 +25,38 @@ router.post("/create", async (req: Request, res: Response) => {
     ) {
       const reservation = await Reservation.create({
         user: client.id,
-        chauffeur: chauffeur.id,
         userLatitude: clientLatitude,
         userLongitude: clientLongitude,
         userDestination: destination,
         userDescription: description,
+        localisation: localisation,
       });
       if (reservation) {
         res.status(201).json(reservation);
       }
     } else {
       res.status(401).json({ message: "Champ incomplet" });
+    }
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+router.post("/assignChauffeur", async (req: Request, res: Response) => {
+  const { _id, email } = req.body;
+  try {
+    const reservation = await Reservation.findOne({ _id: _id });
+    if (reservation) {
+      const user = await User.findOne({ email: email, status: true });
+      if (user) {
+        reservation.chauffeur = user._id;
+        await reservation.save();
+        res.status(200).json(reservation);
+      } else {
+        res.status(404).json({ message: "User not found" });
+      }
+    } else {
+      res.status(404).json({ message: "Reservation non existant" });
     }
   } catch (error) {
     res.status(500).json({ error });
