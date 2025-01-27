@@ -114,7 +114,7 @@ router.post(
         if (user) {
           user.photoMoto = `${domain}/assets/moto/` + req.file.filename;
           await user.save();
-          res.status(200).json({ message: "Photo de moto apres téléchargée" });
+          res.status(200).json({ message: "Photo de moto téléchargée" });
         }
       } catch (error) {
         res.status(500).json({ error });
