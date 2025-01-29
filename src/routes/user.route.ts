@@ -83,7 +83,9 @@ router.post(
   "/uploadCIN2",
   upload.single("file"),
   async (req: Request, res: Response) => {
+      console.log("Tonga aty lesy laisany")
     if (!req.file) {
+      console.log("Tsy tonga aty le fichier")
       res.status(404).json({ message: "Aucun fichier fournit" });
     } else {
       const { email } = req.body;
