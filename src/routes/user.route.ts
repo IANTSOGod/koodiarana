@@ -83,6 +83,7 @@ router.post(
   }
 );
 
+
 router.post(
   "/uploadCIN2",
   upload.single("file"),
@@ -109,6 +110,7 @@ router.post(
   "/uploadMoto",
   upload.single("file"),
   async (req: Request, res: Response) => {
+    console.log("Hapiditra moto")
     if (!req.file) {
       res.status(404).json({ message: "Aucun fichier fournit" });
     } else {
