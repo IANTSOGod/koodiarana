@@ -85,6 +85,7 @@ export const initializeWebSocket = (server: http.Server) => {
                   clients: ClientList,
                 })
               );
+              console.log(AllChauffeur);
             } else {
               ws.send("Erreur : Propriétés longitude et latitude manquantes.");
             }
