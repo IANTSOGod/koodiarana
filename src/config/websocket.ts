@@ -24,6 +24,16 @@ export const initializeWebSocket = (server: http.Server) => {
     }
   };
 
+  const removeChauffeur = (clientID: string) => {
+    const index = AllChauffeur.findIndex(
+      (chauffeur) => chauffeur.id === clientID
+    );
+    if (index !== -1) {
+      console.log(`Suppression du chauffeur: ${AllChauffeur[index].email}`);
+      AllChauffeur.splice(index, 1);
+    }
+  };
+
   const getClientList = async () => {
     const allReservation = await Reservation.find({});
     ClientList.length = 0; // Réinitialise le tableau avant de le remplir
@@ -92,6 +102,7 @@ export const initializeWebSocket = (server: http.Server) => {
 
     ws.on("close", () => {
       console.log("Le client WebSocket s'est déconnecté.");
+      removeChauffeur(clientID);
     });
 
     ws.send("Bienvenue sur le serveur WebSocket!");

@@ -30,12 +30,17 @@ router.post("/send", async (req: Request, res: Response) => {
 
 router.post("/sendVerificationLink", async (req: Request, res: Response) => {
   const { token } = req.body;
-  const payload = verifyToken(token) as { email: string };
+  let payload;
+  try {
+    payload = verifyToken(token) as { email: string };
+  } catch (error) {
+    res.status(401).json({ message: "Token invalide" });
+  }
   const societyEmail = process.env.SOCIETY_EMAIL;
   try {
     const mailOptions = {
       from: societyEmail, // Adresse email de l'expéditeur
-      to: payload.email, // Adresse email du destinataire
+      to: payload?.email, // Adresse email du destinataire
       subject: "Email verification", // Sujet de l'email
       text: `Voici le lien de vérification de compte ${domain}/users/verifyEmail/${token}`, // Texte brut
     };

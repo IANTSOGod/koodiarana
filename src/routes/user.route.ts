@@ -12,18 +12,26 @@ configDotenv({ path: ".env" });
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Vérifie la route et définit le dossier approprié
-    if (req.path === "/uploadProfilePics") {
-      cb(null, path.join(__dirname, "../assets/profile"));
-    } else if (req.path === "/uploadCIN1") {
-      cb(null, path.join(__dirname, "../assets/cinFront"));
-    } else if (req.path === "/uploadCIN2") {
-      cb(null, path.join(__dirname, "../assets/cinBack"));
-    } else if (req.path === "/uploadMoto") {
-      cb(null, path.join(__dirname, "../assets/moto"));
-    } else {
-      cb(new Error("Route non valide pour l’upload"), "");
+    let folderPath = "";
+
+    switch (file.fieldname) {
+      case "CIN1":
+        folderPath = path.join(__dirname, "../assets/cinFront");
+        break;
+      case "CIN2":
+        folderPath = path.join(__dirname, "../assets/cinBack");
+        break;
+      case "Profile":
+        folderPath = path.join(__dirname, "../assets/profile");
+        break;
+      case "Moto":
+        folderPath = path.join(__dirname, "../assets/moto");
+        break;
+      default:
+        return cb(new Error("Champ de fichier invalide"), "");
     }
+
+    cb(null, folderPath);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -36,99 +44,54 @@ const upload = multer({ storage });
 const domain = process.env.DOMAIN_NAME;
 
 router.post(
-  "/uploadProfilePics",
-  upload.single("file"),
+  "/uploadCIN",
+  upload.fields([
+    { name: "CIN1", maxCount: 1 },
+    { name: "CIN2", maxCount: 1 },
+  ]),
   async (req: Request, res: Response) => {
-    if (!req.file) {
-      res.status(404).json({ message: "Aucun fichier fournit" });
-    } else {
-      const { email } = req.body;
-      try {
-        const user = await User.findOne({ email: email });
-        if (user) {
-          user.photoProfil = `${domain}/assets/profile/` + req.file.filename;
-          await user.save();
-          res.status(200).json({ message: "Photo de profil téléchargée" });
-        }
-      } catch (error) {
-        res.status(500).json({ error });
+    const { email } = req.body;
+    try {
+      const user = await User.findOne({ email: email });
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      if (user) {
+        user.photoCIN1 = `${domain}/assets/cinFront/${files.CIN1[0].filename}`;
+        user.photoCIN2 = `${domain}/assets/cinFront/${files.CIN2[0].filename}`;
+        await user.save();
+        res.status(201).json({ message: "Images CIN téléchargées" });
+      } else {
+        res.status(404).json({ message: "Utilisateur non trouvé" });
       }
+    } catch (error) {
+      res.status(500).json(error);
     }
   }
 );
 
 router.post(
-  "/uploadCIN1",
-  upload.single("file"),
+  "/uploadOthers",
+  upload.fields([
+    { name: "Profile", maxCount: 1 },
+    { name: "Moto", maxCount: 1 },
+  ]),
   async (req: Request, res: Response) => {
-    console.log("Tonga aty lesy laisany")
-
-    if (!req.file) {
-      console.log("Tsy tonga aty le fichier")
-
-      res.status(404).json({ message: "Aucun fichier fournit" });
-    } else {
-      const { email } = req.body;
-      try {
-        const user = await User.findOne({ email: email });
-        if (user) {
-          user.photoCIN1 = `${domain}/assets/cinFront/` + req.file.filename;
-          await user.save();
-          res.status(200).json({ message: "Photo de CIN avant téléchargée" });
-        }
-      } catch (error) {
-        res.status(500).json({ error });
+    const { email } = req.body;
+    try {
+      const user = await User.findOne({ email: email });
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      if (user) {
+        user.photoProfil = `${domain}/assets/profile/${files.Profile[0].filename}`;
+        user.photoMoto = `${domain}/assets/moto/${files.Moto[0].filename}`;
+        await user.save();
+        res.status(201).json({ message: "Autres images téléchargées" });
+      } else {
+        res.status(404).json({ message: "Utilisateur non trouvé" });
       }
+    } catch (error) {
+      res.status(500).json(error);
     }
   }
 );
-
-
-router.post(
-  "/uploadCIN2",
-  upload.single("file"),
-  async (req: Request, res: Response) => {
-    if (!req.file) {
-      res.status(404).json({ message: "Aucun fichier fournit" });
-    } else {
-      const { email } = req.body;
-      try {
-        const user = await User.findOne({ email: email });
-        if (user) {
-          user.photoCIN2 = `${domain}/assets/cinBack/` + req.file.filename;
-          await user.save();
-          res.status(200).json({ message: "Photo de CIN apres téléchargée" });
-        }
-      } catch (error) {
-        res.status(500).json({ error });
-      }
-    }
-  }
-);
-
-router.post(
-  "/uploadMoto",
-  upload.single("file"),
-  async (req: Request, res: Response) => {
-    console.log("Hapiditra moto")
-    if (!req.file) {
-      res.status(404).json({ message: "Aucun fichier fournit" });
-    } else {
-      const { email } = req.body;
-      try {
-        const user = await User.findOne({ email: email, status: true });
-        if (user) {
-          user.photoMoto = `${domain}/assets/moto/` + req.file.filename;
-          await user.save();
-          res.status(200).json({ message: "Photo de moto téléchargée" });
-        }
-      } catch (error) {
-        res.status(500).json({ error });
-      }
-    }
-  }
-);
-
 router.post("/create", async (req: Request, res: Response) => {
   const { nom, prenom, dateNaissance, email, num, password, status } = req.body;
   const hashedPassword = await hash(password, 10);
@@ -150,6 +113,7 @@ router.post("/create", async (req: Request, res: Response) => {
       });
       const newUserDoc = await newUser.save();
       const token = generateToken(newUserDoc.email);
+      console.log(token);
       res.status(201).json({ token: token });
     }
   } catch (error) {
