@@ -93,7 +93,7 @@ router.post(
   }
 );
 router.post("/create", async (req: Request, res: Response) => {
-  const { nom, prenom, dateNaissance, email, num, password, status } = req.body;
+  const { nom, prenom,cin, dateNaissance, email, num, password, status } = req.body;
   const hashedPassword = await hash(password, 10);
   try {
     const existingUser = await User.findOne({ email: email });
