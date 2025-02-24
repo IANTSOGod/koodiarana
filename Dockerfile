@@ -14,7 +14,7 @@ RUN npm install -g pnpm && pnpm install
 COPY . .
 
 # Build the TypeScript code
-RUN pnpm run build
+CMD ["pnpm","run","build"]
 
 # Expose the port the app runs on
 EXPOSE 9999
