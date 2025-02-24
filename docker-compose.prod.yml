@@ -1,13 +1,15 @@
 services:
   # MongoDB
-  db:
-    image: mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: dev
-      MONGO_INITDB_ROOT_PASSWORD: dev
-    restart: always
-    ports:
-      - "27017:27017" # Expose MongoDB sur le port par défaut
+  # db:
+  #   image: mongo
+  #   environment:
+  #    MONGO_LOCAL: mongodb://localhost:27017/koodiarana
+  #    MONGO_INITDB_ROOT_USERNAME: sass
+  #    MONGO_INITDB_ROOT_PASSWORD: realpasssass
+  #    MONGO_INITDB_DATABASE: admin
+  #   restart: always
+  #   ports:
+  #     - "27017:27017" # Expose MongoDB sur le port par défaut
 
   # Node.js
   api:
@@ -21,7 +23,7 @@ services:
       - db
     environment:
       PORT: 9999
-      DATABASE: mongodb://db:27017/koodiarana?authSource=koodiarana # Port interne correct
+      DATABASE: mongodb://46.202.134.188:27017/koodiarana# Port interne correct
       JWT_SECRET: $2b$10$Sjzdakezna2Qy3y/WciWM4GkEq.RktXLhztghzGJynA649M14njAS
       OTP_SECRET: koodiaranabyiantsosynykazazanyAZERTY
       SOCIETY_EMAIL: iantsochristianrazafindrazaka@gmail.com
