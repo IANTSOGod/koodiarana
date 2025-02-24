@@ -19,11 +19,11 @@ services:
     ports:
       - "9999:9999"
     restart: always
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
     environment:
       PORT: 9999
-      DATABASE: mongodb://46.202.134.188:27017/koodiarana# Port interne correct
+      DATABASE: mongodb://46.202.134.188:27017/koodiarana
       JWT_SECRET: $2b$10$Sjzdakezna2Qy3y/WciWM4GkEq.RktXLhztghzGJynA649M14njAS
       OTP_SECRET: koodiaranabyiantsosynykazazanyAZERTY
       SOCIETY_EMAIL: iantsochristianrazafindrazaka@gmail.com
