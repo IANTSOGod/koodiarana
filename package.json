@@ -10,9 +10,10 @@
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^3.0.0",
     "@types/express": "^5.0.0",
     "@types/multer": "^1.4.12",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -25,7 +26,7 @@
     "ws": "^8.18.0"
   },
   "scripts": {
-    "build": "tsc && cp -r src/assets dist/assets",
+    "build": "tsc",
     "start": "node dist/main.js"
   }
 }

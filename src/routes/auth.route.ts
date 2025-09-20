@@ -1,6 +1,6 @@
 import { Router, Response, Request } from "express";
 import User from "../schema/user";
-import { compare } from "bcrypt";
+import { compare } from "bcryptjs";
 
 const router = Router();
 
@@ -26,7 +26,7 @@ router.post("/login", async (req: Request, res: Response) => {
       res.status(404).json({ message: "User not found" });
     }
   } catch (error) {
-    res.status(500).json(error);
+    res.status(501).json(error);
   }
 });
 

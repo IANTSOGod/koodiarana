@@ -6,8 +6,11 @@ configDotenv({path:".env"});
 const societyEmail=process.env.SOCIETY_EMAIL;
 const societyPassword=process.env.SOCIETY_PASSWORD;
 
+
 export const transporter = nodemailer.createTransport({
-  service: "gmail", 
+  host: "smtp.hostinger.com",
+  port: 465,
+  secure: true, 
   auth: {
     user: societyEmail, 
     pass: societyPassword,   

@@ -1,23 +1,23 @@
-# Use the official Node.js image as the base image
-FROM node:18
+# Base image
+FROM node:20
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and pnpm-lock.yaml to the working directory
+# Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
+# Install pnpm and dependencies
 RUN npm install -g pnpm && pnpm install
 
-# Copy the rest of the application code to the working directory
+# Copy all source code
 COPY . .
 
-# Build the TypeScript code
-CMD ["pnpm","run","build"]
+# Build TypeScript
+RUN pnpm run build
 
-# Expose the port the app runs on
+# Expose port
 EXPOSE 9999
 
-# Define the command to run the app
+# Run the app
 CMD ["node", "dist/main.js"]

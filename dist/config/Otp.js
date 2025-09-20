@@ -6,7 +6,7 @@ const otplib_1 = require("otplib");
 (0, dotenv_1.configDotenv)({ path: ".env" });
 otplib_1.totp.options = {
     digits: 6, // Nombre de chiffres pour l'OTP
-    step: 900,
+    step: 300,
 };
 const secret = process.env.OTP_SECRET;
 const generateOtp = () => {

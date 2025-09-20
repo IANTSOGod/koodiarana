@@ -40,12 +40,18 @@ router.post("/send", (req, res) => __awaiter(void 0, void 0, void 0, function* (
 }));
 router.post("/sendVerificationLink", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { token } = req.body;
-    const payload = (0, jwt_1.verifyToken)(token);
+    let payload;
+    try {
+        payload = (0, jwt_1.verifyToken)(token);
+    }
+    catch (error) {
+        res.status(401).json({ message: "Token invalide" });
+    }
     const societyEmail = process.env.SOCIETY_EMAIL;
     try {
         const mailOptions = {
             from: societyEmail, // Adresse email de l'expéditeur
-            to: payload.email, // Adresse email du destinataire
+            to: payload === null || payload === void 0 ? void 0 : payload.email, // Adresse email du destinataire
             subject: "Email verification", // Sujet de l'email
             text: `Voici le lien de vérification de compte ${domain}/users/verifyEmail/${token}`, // Texte brut
         };

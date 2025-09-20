@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const user_1 = __importDefault(require("../schema/user"));
-const bcrypt_1 = require("bcrypt");
+const bcryptjs_1 = require("bcryptjs");
 const router = (0, express_1.Router)();
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
@@ -23,7 +23,7 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
             email: email,
         });
         if (user) {
-            const isPasswordValid = yield (0, bcrypt_1.compare)(password, user.password);
+            const isPasswordValid = yield (0, bcryptjs_1.compare)(password, user.password);
             if (isPasswordValid) {
                 if (user.emailVerified) {
                     res.status(200).json(user);

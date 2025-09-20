@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const user_1 = __importDefault(require("../schema/user"));
-const bcrypt_1 = require("bcrypt");
+const bcryptjs_1 = require("bcryptjs");
 const jwt_1 = require("../config/jwt");
 const Otp_1 = require("../config/Otp");
 const multer_1 = __importDefault(require("multer"));
@@ -24,19 +24,24 @@ const router = (0, express_1.Router)();
 (0, dotenv_1.configDotenv)({ path: ".env" });
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
-        // Vérifie la route et définit le dossier approprié
-        if (req.path === "/uploadProfilePics") {
-            cb(null, path_1.default.join(__dirname, "../assets/profile"));
+        let folderPath = "";
+        switch (file.fieldname) {
+            case "CIN1":
+                folderPath = path_1.default.join(__dirname, "../assets/cinFront");
+                break;
+            case "CIN2":
+                folderPath = path_1.default.join(__dirname, "../assets/cinBack");
+                break;
+            case "Profile":
+                folderPath = path_1.default.join(__dirname, "../assets/profile");
+                break;
+            case "Moto":
+                folderPath = path_1.default.join(__dirname, "../assets/moto");
+                break;
+            default:
+                return cb(new Error("Champ de fichier invalide"), "");
         }
-        else if (req.path === "/uploadCIN1") {
-            cb(null, path_1.default.join(__dirname, "../assets/cinFront"));
-        }
-        else if (req.path === "/uploadCIN2") {
-            cb(null, path_1.default.join(__dirname, "../assets/cinBack"));
-        }
-        else {
-            cb(new Error("Route non valide pour l’upload"), "");
-        }
+        cb(null, folderPath);
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -45,79 +50,75 @@ const storage = multer_1.default.diskStorage({
 });
 const upload = (0, multer_1.default)({ storage });
 const domain = process.env.DOMAIN_NAME;
-router.post("/uploadProfilePics", upload.single("file"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.file) {
-        res.status(404).json({ message: "Aucun fichier fournit" });
+router.post("/uploadCIN", upload.fields([
+    { name: "CIN1", maxCount: 1 },
+    { name: "CIN2", maxCount: 1 },
+]), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    try {
+        const user = yield user_1.default.findOne({ email: email });
+        const files = req.files;
+        if (user) {
+            user.photoCIN1 = `${domain}/assets/cinFront/${files.CIN1[0].filename}`;
+            user.photoCIN2 = `${domain}/assets/cinFront/${files.CIN2[0].filename}`;
+            yield user.save();
+            res.status(201).json({ message: "Images CIN téléchargées" });
+        }
+        else {
+            res.status(404).json({ message: "Utilisateur non trouvé" });
+        }
     }
-    else {
-        const { email } = req.body;
-        try {
-            const user = yield user_1.default.findOne({ email: email });
-            if (user) {
-                user.photoProfil = `${domain}/assets/profile/` + req.file.filename;
-                yield user.save();
-                res.status(200).json({ message: "Photo de profil téléchargée" });
-            }
-        }
-        catch (error) {
-            res.status(500).json({ error });
-        }
-    }
-}));
-router.post("/uploadCIN1", upload.single("file"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.file) {
-        res.status(404).json({ message: "Aucun fichier fournit" });
-    }
-    else {
-        const { email } = req.body;
-        try {
-            const user = yield user_1.default.findOne({ email: email });
-            if (user) {
-                user.photoCIN1 = `${domain}/assets/cinFront/` + req.file.filename;
-                yield user.save();
-                res.status(200).json({ message: "Photo de CIN avant téléchargée" });
-            }
-        }
-        catch (error) {
-            res.status(500).json({ error });
-        }
+    catch (error) {
+        res.status(500).json(error);
     }
 }));
-router.post("/uploadCIN2", upload.single("file"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.file) {
-        res.status(404).json({ message: "Aucun fichier fournit" });
+router.post("/uploadOthers", upload.fields([
+    { name: "Profile", maxCount: 1 },
+    { name: "Moto", maxCount: 1 },
+]), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    try {
+        const user = yield user_1.default.findOne({ email: email });
+        const files = req.files;
+        if (user) {
+            user.photoProfil = `${domain}/assets/profile/${files.Profile[0].filename}`;
+            user.photoMoto = `${domain}/assets/moto/${files.Moto[0].filename}`;
+            yield user.save();
+            res.status(201).json({ message: "Autres images téléchargées" });
+        }
+        else {
+            res.status(404).json({ message: "Utilisateur non trouvé" });
+        }
     }
-    else {
-        const { email } = req.body;
-        try {
-            const user = yield user_1.default.findOne({ email: email });
-            if (user) {
-                user.photoCIN2 = `${domain}/assets/cinBack/` + req.file.filename;
-                yield user.save();
-                res.status(200).json({ message: "Photo de CIN apres téléchargée" });
-            }
-        }
-        catch (error) {
-            res.status(500).json({ error });
-        }
+    catch (error) {
+        res.status(500).json(error);
     }
 }));
 router.post("/create", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { nom, prenom, dateNaissance, email, num, password, status } = req.body;
-    const hashedPassword = yield (0, bcrypt_1.hash)(password, 10);
+    const { nom, prenom, cin, dateNaissance, email, num, password, status } = req.body;
+    const hashedPassword = yield (0, bcryptjs_1.hash)(password, 10);
     try {
-        const newUser = new user_1.default({
-            nom: nom,
-            prenom: prenom,
-            dateNaissance: dateNaissance,
-            email: email,
-            num: num,
-            password: hashedPassword,
-            status: status,
-        });
-        const newUserDoc = yield newUser.save();
-        const token = (0, jwt_1.generateToken)(newUserDoc.email);
-        res.status(201).json({ token: token });
+        const existingUser = yield user_1.default.findOne({ email: email });
+        if (existingUser) {
+            res
+                .status(401)
+                .json({ message: "Utilisateur avec meme mail existe déja" });
+        }
+        else {
+            const newUser = new user_1.default({
+                nom: nom,
+                prenom: prenom,
+                dateNaissance: dateNaissance,
+                email: email,
+                num: num,
+                password: hashedPassword,
+                status: status,
+            });
+            const newUserDoc = yield newUser.save();
+            const token = (0, jwt_1.generateToken)(newUserDoc.email);
+            console.log(token);
+            res.status(201).json({ token: token });
+        }
     }
     catch (error) {
         res.status(500).json({ error });
@@ -167,7 +168,7 @@ router.post("/changePassword", (req, res) => __awaiter(void 0, void 0, void 0, f
     const { email, newPassword } = req.body;
     try {
         const user = yield user_1.default.findOne({ email: email });
-        const hashedPassword = yield (0, bcrypt_1.hash)(newPassword, 10);
+        const hashedPassword = yield (0, bcryptjs_1.hash)(newPassword, 10);
         if (user) {
             user.password = hashedPassword;
             yield (user === null || user === void 0 ? void 0 : user.save());

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import User from "../schema/user";
-import { hash } from "bcrypt";
+import { hash } from "bcryptjs";
 import { generateToken, verifyToken } from "../config/jwt";
 import { verifyOtp } from "../config/Otp";
 import multer from "multer";

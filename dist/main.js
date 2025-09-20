@@ -8,6 +8,7 @@ const express_1 = __importDefault(require("express"));
 const user_route_1 = __importDefault(require("./routes/user.route"));
 const auth_route_1 = __importDefault(require("./routes/auth.route"));
 const email_route_1 = __importDefault(require("./routes/email.route"));
+const reservation_route_1 = __importDefault(require("./routes/reservation.route"));
 const mongoose_1 = __importDefault(require("./config/mongoose"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const path_1 = __importDefault(require("path"));
@@ -26,6 +27,7 @@ app.use("/assets", express_1.default.static(assetsPath));
 app.use("/users", user_route_1.default);
 app.use("/auth", auth_route_1.default);
 app.use("/email", email_route_1.default);
+app.use('/reservation', reservation_route_1.default);
 server.listen(port, () => {
     console.log(`Connected to mongodb://${port}`);
 });
